@@ -43,7 +43,13 @@ app.post('/login', logger, async (req, res) => {
     console.log({ sub: user._id, role: body.doctor ? "doctor" : "patient" })
     if (bcrypt.compare(body.password, user.password)) {
         // let token = await createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
-        res.status(200).json({ success: true });
+        res.status(200).json({
+            success: true, data: {
+                "id": user._id,
+                "name": user.name,
+                "doctor": user.doctor
+            }
+        });
     } else {
         res.status(401).json({ error: "Wrong Credentials" });
     }
@@ -69,10 +75,11 @@ app.post('/register', logger, async (req, res) => {
 
         // const token = createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
 
-        res.status(201).json({
+        res.status(200).json({
             success: true, data: {
                 "id": user.id,
                 "name": user.name,
+                "doctor": user.doctor
             }
         });
     } catch (error) {
@@ -160,7 +167,7 @@ app.get('/appointments', logger, async (req, res) => {
     try {
         let user = await new Appointments.find();
 
-        res.status(201).json({
+        res.status(200).json({
             success: true, data: {
                 id: user._id,
             }
@@ -182,7 +189,7 @@ app.post('/appointment', logger, async (req, res) => {
     try {
         let user = await new Appointments(req.body).save();
 
-        res.status(201).json({
+        res.status(200).json({
             success: true, data: {
                 id: user._id,
             }
@@ -217,7 +224,7 @@ app.put('/appointment/:id', logger, async (req, res) => {
     try {
         const id = req.params["id"];
         let user = await Appointments.findByIdAndUpdate(id, body)
-        res.status(201).json({
+        res.status(200).json({
             success: true, data: {
                 id: user._id,
             }
