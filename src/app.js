@@ -90,9 +90,20 @@ app.get('/doctors', logger, async (_req, res) => {
     }
 });
 
-app.get('/doctor/:id', logger, async (req, res) => {
+app.put('/doctor/:id', logger, async (req, res) => {
     const id = { id: req.params["id"] };
-    const user = await Doctors.findOne({ id });
+    const user = await Doctors.findByIdAndUpdate({ _id: id }, body);
+
+    if (user !== null) {
+        res.status(200).json({ "success": true, data: user })
+    } else {
+        res.status(404).json({ "error": "404 Not Found" })
+    }
+});
+
+app.get('/doctor/:id', logger, async (req, res) => {
+    const id = req.params["id"];
+    const user = await Doctors.findById({ _id: id });
 
     if (user !== null) {
         res.status(200).json({ "success": true, data: user })
@@ -107,6 +118,29 @@ app.get('/patients', logger, async (_req, res) => {
         res.status(200).json({ "success": true, data: user })
     } else {
         res.status(404).json({ "error": "no patients to fetch" })
+    }
+});
+
+app.get('/patient/:id', logger, async (req, res) => {
+    const id = req.params["id"];
+    const user = await Patients.findById({ _id: id });
+
+    if (user !== null) {
+        res.status(200).json({ "success": true, data: user })
+    } else {
+        res.status(404).json({ "error": "404 Not Found" })
+    }
+});
+
+app.put('/patient/:id', logger, async (req, res) => {
+    const body = req.body;
+    const id = req.params["id"];
+    const user = await Patients.findByIdAndUpdate(id, body);
+
+    if (user !== null) {
+        res.status(200).json({ "success": true, data: user })
+    } else {
+        res.status(404).json({ "error": "404 Not Found" })
     }
 });
 
