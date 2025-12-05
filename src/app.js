@@ -1,9 +1,9 @@
 'use strict';
 import express from 'express';
 import mongoose from 'mongoose';
-import { authenticateToken } from './middleware/authenticate.js';
+// import { authenticateToken } from './middleware/authenticate.js';
 import dotenv from 'dotenv';
-import createToken from "./service/authenticate.service.js"
+// import createToken from "./service/authenticate.service.js"
 import { Doctors } from './models/doctors.model.js'
 import { Patients } from './models/patients.model.js'
 import { Appointments } from './models/appointment.model.js'
@@ -42,8 +42,8 @@ app.post('/login', logger, async (req, res) => {
 
     console.log({ sub: user._id, role: body.doctor ? "doctor" : "patient" })
     if (bcrypt.compare(body.password, user.password)) {
-        let token = await createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
-        res.status(200).json({ success: true, token });
+        // let token = await createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
+        res.status(200).json({ success: true });
     } else {
         res.status(401).json({ error: "Wrong Credentials" });
     }
@@ -67,10 +67,10 @@ app.post('/register', logger, async (req, res) => {
 
         console.log("user", user);
 
-        const token = createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
+        // const token = createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
 
         res.status(201).json({
-            success: true, token, user: {
+            success: true, data: {
                 "id": user.id,
                 "name": user.name,
             }
@@ -84,7 +84,7 @@ app.post('/register', logger, async (req, res) => {
 app.get('/doctors', logger, async (_req, res) => {
     const user = await Doctors.find();
     if (user.length !== 0) {
-        res.status(200).json({ "success": true, user: user })
+        res.status(200).json({ "success": true, data: user })
     } else {
         res.status(404).json({ "error": "No doctors to fetch" })
     }
@@ -95,7 +95,7 @@ app.get('/doctor/:id', logger, async (req, res) => {
     const user = await Doctors.findOne({ id });
 
     if (user !== null) {
-        res.status(200).json({ "success": true, user: user })
+        res.status(200).json({ "success": true, data: user })
     } else {
         res.status(404).json({ "error": "404 Not Found" })
     }
@@ -104,7 +104,7 @@ app.get('/doctor/:id', logger, async (req, res) => {
 app.get('/patients', logger, async (_req, res) => {
     const user = await Patients.find();
     if (user.length !== 0) {
-        res.status(200).json({ "success": true, user: user })
+        res.status(200).json({ "success": true, data: user })
     } else {
         res.status(404).json({ "error": "no patients to fetch" })
     }
@@ -115,19 +115,19 @@ app.get('/patient/:id', logger, async (req, res) => {
     const user = await Patients.findById({ _id: id });
 
     if (user !== null) {
-        res.status(200).json({ "success": true, user: user })
+        res.status(200).json({ "success": true, data: user })
     } else {
         res.status(404).json({ "error": "404 Not Found" })
     }
 });
 
 
-app.get('/appointments', authenticateToken, logger, async (req, res) => {
+app.get('/appointments', logger, async (req, res) => {
     try {
         let user = await new Appointments.find();
 
         res.status(201).json({
-            success: true, user: {
+            success: true, data: {
                 id: user._id,
             }
         });
@@ -137,7 +137,7 @@ app.get('/appointments', authenticateToken, logger, async (req, res) => {
     }
 });
 
-app.post('/appointment', authenticateToken, logger, async (req, res) => {
+app.post('/appointment', logger, async (req, res) => {
     const body = req.body;
     console.log(body);
     if (!validateAppointmentCredentails(body)) {
@@ -149,7 +149,7 @@ app.post('/appointment', authenticateToken, logger, async (req, res) => {
         let user = await new Appointments(req.body).save();
 
         res.status(201).json({
-            success: true, user: {
+            success: true, data: {
                 id: user._id,
             }
         });
@@ -159,7 +159,7 @@ app.post('/appointment', authenticateToken, logger, async (req, res) => {
     }
 });
 
-app.delete('/appointment/:id', authenticateToken, async (req, res) => {
+app.delete('/appointment/:id', logger, async (req, res) => {
     const id = req.params["id"];
 
     try {
@@ -173,7 +173,7 @@ app.delete('/appointment/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/appointment/:id', authenticateToken, async (req, res) => {
+app.put('/appointment/:id', logger, async (req, res) => {
     const body = req.body;
     console.log(body);
     if (!validateAppointmentCredentails(body)) {
@@ -184,7 +184,7 @@ app.put('/appointment/:id', authenticateToken, async (req, res) => {
         const id = req.params["id"];
         let user = await Appointments.findByIdAndUpdate(id, body)
         res.status(201).json({
-            success: true, user: {
+            success: true, data: {
                 id: user._id,
             }
         });
@@ -195,7 +195,7 @@ app.put('/appointment/:id', authenticateToken, async (req, res) => {
 
 });
 
-app.get('/appointment/:id', authenticateToken, async (req, res) => {
+app.get('/appointment/:id', logger, async (req, res) => {
     const id = { id: req.params["id"] };
     const user = await Appointments.findOne({ id });
 
