@@ -40,14 +40,14 @@ app.post('/login', logger, async (req, res) => {
         res.status(401).json({ error: "Wrong Credentials" });
     }
 
-    console.log({ sub: user._id, role: body.doctor ? "doctor" : "patient" })
-    if (bcrypt.compare(body.password, user.password)) {
+    // console.log({ sub: user._id, role: body.doctor ? "doctor" : "patient" })
+    if (body.password === user.password) {
         // let token = await createToken({ sub: user._id, role: body.doctor ? "doctor" : "patient" });
         res.status(200).json({
             success: true, data: {
                 "id": user._id,
                 "name": user.name,
-                "doctor": user.doctor
+                "doctor": body.doctor
             }
         });
     } else {
